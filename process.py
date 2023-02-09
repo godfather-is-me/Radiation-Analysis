@@ -132,7 +132,7 @@ class Analysis():
             opacity=0.8,
         )
         fig.add_vline(
-            x = self.sleep.timestamp() * 1000,
+            x = (self.sleep - dt.timedelta(hours=11)).timestamp() * 1000,
             line_dash = "dot",
             line_color = "black",
             annotation_text = "11:00 pm",
@@ -140,7 +140,7 @@ class Analysis():
             annotation_font_color = "white"
         )
         fig.add_vline(
-            x = self.awake.timestamp() * 1000,
+            x = (self.awake - dt.timedelta(hours=11)).timestamp() * 1000,
             line_dash = "dot",
             line_color = "black",
             annotation_text = "5:30 am",
@@ -148,8 +148,8 @@ class Analysis():
             annotation_font_color = "white"
         )
         fig.add_vrect(
-            x0=self.sleep.timestamp() * 1000,
-            x1=self.awake.timestamp() * 1000,
+            x0=(self.sleep - dt.timedelta(hours=11)).timestamp() * 1000,
+            x1=(self.awake - dt.timedelta(hours=11)).timestamp() * 1000,
             fillcolor = "black",
             opacity=0.33
         )
