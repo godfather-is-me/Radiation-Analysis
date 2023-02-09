@@ -7,7 +7,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 import plotly.express as px
-import plotly.offline as py
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from streamlit_plotly_events import plotly_events
@@ -214,16 +213,18 @@ class Analysis():
             col=1
         )
 
-        fig.add_vline(
-            x = self.safe_level,
-            line_dash = "dot",
-            line_color = "red",
-            opacity = 0.4,
-            annotation_text = "Safe level",
-            annotation_position = "top right",
-            annotation_font_color = "red",
-            annotation_opacity= 0.6
-        )
+        # Safe level only applies to EMF
+        if self.safe_level != 0:
+            fig.add_vline(
+                x = self.safe_level,
+                line_dash = "dot",
+                line_color = "red",
+                opacity = 0.4,
+                annotation_text = "Safe level",
+                annotation_position = "top right",
+                annotation_font_color = "red",
+                annotation_opacity= 0.6
+            )
 
         fig.add_trace(
             go.Histogram(
@@ -319,14 +320,15 @@ class Analysis():
             annotation_font_color = "black"
         )
 
-        fig.add_hline(
-            y = self.safe_level,
-            line_dash = "dot",
-            line_color = "limegreen",
-            annotation_text = "Safe level",
-            annotation_position = "top left",
-            annotation_font_color = "limegreen"
-        )
+        if self.safe_level != 0:
+            fig.add_hline(
+                y = self.safe_level,
+                line_dash = "dot",
+                line_color = "limegreen",
+                annotation_text = "Safe level",
+                annotation_position = "top left",
+                annotation_font_color = "limegreen"
+            )
 
         fig.update_layout(
             title=self.ytitle + " Points",
@@ -367,14 +369,15 @@ class Analysis():
             name = "5 min average",
             mode = "lines+markers"
         )
-        fig.add_hline(
-            y = 1000,
-            line_dash = "dot",
-            line_color = "limegreen",
-            annotation_text = "Safe level",
-            annotation_position = "top left",
-            annotation_font_color = "limegreen"
-        )
+        if self.safe_level != 0:
+            fig.add_hline(
+                y = self.safe_level,
+                line_dash = "dot",
+                line_color = "limegreen",
+                annotation_text = "Safe level",
+                annotation_position = "top left",
+                annotation_font_color = "limegreen"
+            )
 
         # Updates
         fig.update_layout(
@@ -409,14 +412,15 @@ class Analysis():
             name = "3 min average",
             mode = "lines+markers"
         )
-        fig.add_hline(
-            y = self.safe_level,
-            line_dash = "dot",
-            line_color = "limegreen",
-            annotation_text = "Safe level",
-            annotation_position = "top left",
-            annotation_font_color = "limegreen"
-        )
+        if self.safe_level != 0:
+            fig.add_hline(
+                y = self.safe_level,
+                line_dash = "dot",
+                line_color = "limegreen",
+                annotation_text = "Safe level",
+                annotation_position = "top left",
+                annotation_font_color = "limegreen"
+            )
 
         # Updates
         fig.update_layout(
