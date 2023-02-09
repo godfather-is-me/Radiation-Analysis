@@ -112,15 +112,10 @@ class Analysis():
             self.symbol = "mG"
             self.ytitle = "MF"
             self.safe_level = 0   
-        else:
-            self.ytitle = self.col
-            if self.col == "mG":
-                self.safe_level = 0     # To confirm
-            elif self.col == "V/m":
-                self.safe_level = 0     # To confirm
-        
-        # Safe levels
-
+        elif self.col == "V/m":
+            self.symbol = "V/m"
+            self.ytitle = "EF"
+            self.safe_level = 0
 
     def raw_analysis(self):
         """
@@ -198,7 +193,7 @@ class Analysis():
         fig = make_subplots(
             rows=1,
             cols=2,
-            subplot_titles=("EMR Count during active hours (15 hrs)", "EMR Count during sleep hours (6.5 hrs)")
+            subplot_titles=(self.ytitle + " Count during active hours (15 hrs)", self.ytitle + " Count during sleep hours (6.5 hrs)")
             )
 
         fig.add_trace(
