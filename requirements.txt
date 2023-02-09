@@ -1,0 +1,13 @@
+numpy
+pandas
+matplotlib
+seaborn
+plotly
+scipy
+nbformat
+hampel
+openpyxl
+streamlit
+statsmodels
+ipywidgets
+streamlit-plotly-events
