@@ -3,7 +3,7 @@ import streamlit as st
 import intro
 import process
 
-analysis = process.Analysis()
+analysis = process.Analysis("microW/m2")
 
 def draw_sidebar():
     topics = [

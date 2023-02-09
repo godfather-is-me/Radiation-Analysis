@@ -29,9 +29,12 @@ def cleaning(df: pd.DataFrame):
     return df
 
 class Analysis():
-    def __init__(self):
+    def __init__(self, col: str):
         self.df = pd.read_excel("Amruth_Bedroom_Analysis.xlsx", usecols="A:F,H")
         self.df = cleaning(self.df)
+
+        # Columns names
+        self.col = col
 
         # Set params
         sns.set_style("whitegrid")
@@ -86,20 +89,39 @@ class Analysis():
 
     def calculate(self):
         # Raw numbers
-        self.avg = self.df["microW/m2"].mean()
-        self.std = self.df["microW/m2"].std()
+        self.avg = self.df[self.col].mean()
+        self.std = self.df[self.col].std()
 
-        self.normal_df = self.df[self.df["microW/m2"] < (self.avg + (2 * self.std))].copy()
-        self.outliers_df = self.df[self.df["microW/m2"] > (self.avg + (2 * self.std))]
-        self.df["outliers"] = self.df["microW/m2"] > (self.avg + (2 * self.std))
+        self.normal_df = self.df[self.df[self.col] < (self.avg + (2 * self.std))].copy()
+        self.outliers_df = self.df[self.df[self.col] > (self.avg + (2 * self.std))]
+        self.df["outliers"] = self.df[self.col] > (self.avg + (2 * self.std))
 
         self.sleep_df = self.normal_df[(self.normal_df["datetime"] > self.sleep) & (self.normal_df["datetime"] < self.awake)]
         self.awake_df = self.normal_df[(self.normal_df["datetime"] < self.sleep) | (self.normal_df["datetime"] > self.awake)]
 
         # Moving averages
-        self.normal_df["MA60"] = self.normal_df["microW/m2"].rolling(60).mean()
-        self.normal_df["MA180"] = self.normal_df["microW/m2"].rolling(180).mean()
-        self.normal_df["MA300"] = self.normal_df["microW/m2"].rolling(300).mean()
+        self.normal_df["MA60"] = self.normal_df[self.col].rolling(60).mean()
+        self.normal_df["MA180"] = self.normal_df[self.col].rolling(180).mean()
+        self.normal_df["MA300"] = self.normal_df[self.col].rolling(300).mean()
+
+        # Specific columns and safe levels
+        if self.col == "microW/m2":
+            self.symbol = "μW/m\u00b2"
+            self.ytitle = "EMF Radiation"
+            self.safe_level = 1000
+        elif self.col == "mG":
+            self.symbol = "mG"
+            self.ytitle = "MF"
+            self.safe_level = 0   
+        else:
+            self.ytitle = self.col
+            if self.col == "mG":
+                self.safe_level = 0     # To confirm
+            elif self.col == "V/m":
+                self.safe_level = 0     # To confirm
+        
+        # Safe levels
+
 
     def raw_analysis(self):
         """
@@ -109,7 +131,7 @@ class Analysis():
 
         fig.add_scatter(
             x = self.df["datetime"],
-            y = self.df["microW/m2"],
+            y = self.df[self.col],
             opacity=0.8,
         )
         fig.add_vline(
@@ -135,9 +157,9 @@ class Analysis():
             opacity=0.33
         )
         fig.update_layout(
-            title="EMF Radiation over a day",
+            title= self.ytitle + " over a day",
             xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)"
+            yaxis_title = self.ytitle + "(" + self.symbol + ")"
         )
 
         st.plotly_chart(fig)
@@ -151,7 +173,7 @@ class Analysis():
         fig = px.scatter(
             self.sleep_df,
             x="datetime",
-            y="microW/m2",
+            y=self.col,
             opacity=0.5,
             trendline="rolling",
             trendline_color_override="blue",
@@ -159,9 +181,9 @@ class Analysis():
             )
 
         fig.update_layout(
-            title="EMF Radiation during night hours (11:00 pm - 5:30 am)",
-            xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)"
+            title=self.ytitle + " during night hours (11:00 pm - 5:30 am)",
+            xaxis_title="Time",
+            yaxis_title=self.ytitle + "(" + self.symbol + ")"
         )
 
         fig.update_traces(
@@ -183,7 +205,7 @@ class Analysis():
         fig.add_trace(
             go.Histogram(
                 # Checking above safe limit
-                x = self.awake_df["microW/m2"],
+                x = self.awake_df[self.col],
                 nbinsx=200,
                 opacity=0.6,
                 marker_color="blue"
@@ -193,7 +215,7 @@ class Analysis():
         )
 
         fig.add_vline(
-            x = 1000,
+            x = self.safe_level,
             line_dash = "dot",
             line_color = "red",
             opacity = 0.4,
@@ -205,7 +227,7 @@ class Analysis():
 
         fig.add_trace(
             go.Histogram(
-                x = self.sleep_df["microW/m2"],
+                x = self.sleep_df[self.col],
                 nbinsx=200,
                 marker_color="darkgrey",
             ),
@@ -216,10 +238,10 @@ class Analysis():
         # Update meta-data
         fig.update_layout(
             showlegend=False,
-            title_text="EMR count throughout the day",
+            title_text=self.ytitle + " count throughout the day",
             )
-        fig.update_xaxes(title_text="EMF Radiation (μW/m2)", row=1, col=1)
-        fig.update_xaxes(title_text="EMF Radiation (μW/m2)", row=1, col=2)
+        fig.update_xaxes(title_text=self.ytitle + "(" + self.symbol + ")", row=1, col=1)
+        fig.update_xaxes(title_text=self.ytitle + "(" + self.symbol + ")", row=1, col=2)
         fig.update_yaxes(title_text="Count", row=1, col=1)
         fig.update_yaxes(title_text="Count", row=1, col=2)
 
@@ -232,7 +254,7 @@ class Analysis():
         fig = px.scatter(
             data_frame=self.df,
             x = "datetime",
-            y = "microW/m2",
+            y = self.col,
             opacity=0.4,
             color="outliers",
             color_discrete_map = {
@@ -242,9 +264,9 @@ class Analysis():
         )
         
         fig.update_layout(
-            title="EMR with outliers",
+            title=self.ytitle + " with outliers",
             xaxis_title = "Time",
-            yaxis_title="EMR (μW/m2)"
+            yaxis_title=self.ytitle + "(" + self.symbol + ")"
         )
 
         st.plotly_chart(fig)
@@ -259,7 +281,7 @@ class Analysis():
         # Smoothening function
         idx = range(len(spike))
         xnew = np.linspace(min(idx), max(idx), 300)
-        spl = make_interp_spline(idx, spike["microW/m2"], k=3)
+        spl = make_interp_spline(idx, spike[self.col], k=3)
         ynew = spl(xnew)
 
         # Output plot
@@ -269,7 +291,7 @@ class Analysis():
         plt.xticks(idx[::5], spike["datetime"].dt.strftime("%I:%M:%S %p")[::5])
         # Meta data
         # plt.xlabel("Time")
-        plt.ylabel("EMR (μW/m2)")
+        plt.ylabel(self.ytitle + "(" + self.symbol + ")")
         plt.title("Outliers b/w 8:01 pm - 8:03 pm")
         plt.legend()
 
@@ -285,7 +307,7 @@ class Analysis():
         fig = px.scatter(
             data_frame=self.normal_df,
             x = "datetime",
-            y="microW/m2",
+            y=self.col,
             opacity=0.1,
         )
 
@@ -298,7 +320,7 @@ class Analysis():
         )
 
         fig.add_hline(
-            y = 1000,
+            y = self.safe_level,
             line_dash = "dot",
             line_color = "limegreen",
             annotation_text = "Safe level",
@@ -307,9 +329,9 @@ class Analysis():
         )
 
         fig.update_layout(
-            title="EMF Radiation Points",
+            title=self.ytitle + " Points",
             xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)",
+            yaxis_title=self.ytitle + "(" + self.symbol + ")",
         )
 
         fig.update_traces(
@@ -356,9 +378,9 @@ class Analysis():
 
         # Updates
         fig.update_layout(
-            title="Moving Average of EMF Radiation over a day",
+            title="Moving Average of " + self.ytitle + " over a day",
             xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)"
+            yaxis_title=self.ytitle + "(" + self.symbol + ")"
         )
         fig.update_traces(
             marker=dict(
@@ -388,7 +410,7 @@ class Analysis():
             mode = "lines+markers"
         )
         fig.add_hline(
-            y = 1000,
+            y = self.safe_level,
             line_dash = "dot",
             line_color = "limegreen",
             annotation_text = "Safe level",
@@ -399,9 +421,9 @@ class Analysis():
         # Updates
         fig.update_layout(
             {"uirevision" : "foo"},
-            title="Moving Average of EMF Radiation over a day",
+            title="Moving Average of " + self.ytitle + " over a day",
             xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)",
+            yaxis_title=self.ytitle + "(" + self.symbol + ")",
             overwrite=True
         )
         fig.update_traces(
@@ -419,7 +441,7 @@ class Analysis():
         col1, col2, col3 = st.columns(3)
         col2.metric(
             label="Average",
-            value=f"{self.new_avg(selected):.2f} (μW/m2)"
+            value=f"{self.new_avg(selected):.2f} {self.symbol}"
         )
 
     def new_avg(self, selected: list):
