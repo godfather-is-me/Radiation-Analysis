@@ -51,29 +51,32 @@ class Analysis():
 
         # Raw graph
         self.raw_analysis()
-        st.markdown(
-            "The graph above is a bird's eye view of EMF Radiation from a bedroom takenover 24 hours."
-            " Note that the scale goes upto 700k! Relevant human activity has been highlighted. The "
-            "graph below breaks down what happens during the night.\n"
-            )
+        if self.col == "microW/m2":
+            st.markdown(
+                "The graph above is a bird's eye view of EMF Radiation from a bedroom takenover 24 hours."
+                " Note that the scale goes upto 700k! Relevant human activity has been highlighted. The "
+                "graph below breaks down what happens during the night.\n"
+                )
         self.sleep_graph()
 
         # Frequency
         st.markdown("### Frequency Plots\n")
-        st.markdown(
-            "The plots below are frequency plots of EMF readings split from different human activity. "
-            "As seen, the median value is close to 2.5k while the mean lies around 4k during active hours. "
-            "Important here to understand that the radiation over the safety threshold persists over 12 hours a day! "
-            "While data during sleep is a mere 6.5 hours."
-        )
+        if self.col == "microW/m2":
+            st.markdown(
+                "The plots below are frequency plots of EMF readings split from different human activity. "
+                "As seen, the median value is close to 2.5k while the mean lies around 4k during active hours. "
+                "Important here to understand that the radiation over the safety threshold persists over 12 hours a day! "
+                "While data during sleep is a mere 6.5 hours."
+            )
         self.frequency_graphs()
 
         # Outliers
         st.markdown("### Outliers \n")
-        st.markdown(
-            "The plots below focus and highlight the outliers and suspected activity. Seen below with an overview of outlier points "
-            "is a 2 minute period of exposure to extreme levels of radiation. This far surpases what is the daily average."
-        )
+        if self.col == "microW/m2":
+            st.markdown(
+                "The plots below focus and highlight the outliers and suspected activity. Seen below with an overview of outlier points "
+                "is a 2 minute period of exposure to extreme levels of radiation. This far surpases what is the daily average."
+            )
         self.raw_outliers()
         self.specific8pm()
 
