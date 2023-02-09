@@ -398,13 +398,16 @@ class Analysis():
 
         # Updates
         fig.update_layout(
+            {"uirevision" : "foo"},
             title="Moving Average of EMF Radiation over a day",
             xaxis_title = "Time",
-            yaxis_title="EMF Radiation (μW/m2)"
+            yaxis_title="EMF Radiation (μW/m2)",
+            overwrite=True
         )
         fig.update_traces(
             marker=dict(
                 size=2,
+                color="blue"
                 #colorscale="Viridis"
             ),
         )
